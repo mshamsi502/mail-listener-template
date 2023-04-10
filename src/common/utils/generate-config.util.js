@@ -1,6 +1,6 @@
-export const generateConfig = (url, accessToken) => {
+export const generateConfig = (method, url, accessToken) => {
     return {
-      method: "get",
+      method: method ?? "get",
       url: url,
       headers: {
         Authorization: `Bearer ${accessToken} `,

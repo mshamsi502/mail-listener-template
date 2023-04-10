@@ -1,42 +1,41 @@
 import axios from "axios"
 import nodemailer from "nodemailer"
 import { google } from "googleapis"
-import * as dotenv from 'dotenv'
 import { generateConfig } from "../common/utils/generate-config.util.js"
-import { gmailAuth } from "../common/const/first-gmail-api.const.js"
-// import { simpleImapAsync } from "../common/utils/listener-connection.util.js"
-// import { getMessageImapAsync } from "../common/utils/imap-connection.util.js"
-// import Imap from 'imap';
 
-
+// 
 export const oAuth2Client = new google.auth.OAuth2(
   process.env.SECOND_CLIENT_ID,
   process.env.SECOND_CLIENT_SECRET,
   process.env.SECOND_REDIRECT_URI
 );
-
-
-
-
 oAuth2Client.setCredentials({ refresh_token: process.env.SECOND_REFRESH_TOKEN });
-
 const { token } = await oAuth2Client.getAccessToken();
+// 
 
 export async function sendMail(req, res, next) {
+  const accessToken = req.body.accessToken;
+  const fromAddress = req.body.from;
+  const toAddress = req.body.to;
+  const subjectAddress = req.body.subject;
+  const textAddress = req.body.text;
     try {
       const transport = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          ...gmailAuth,
-          accessToken: token,
+          type: "OAuth2",
+          user: fromAddress,
+          accessToken: accessToken,
         },
       });
       const mailOptions = {
-        from: `Siddhant <${process.env.GMAIL_ADDRESS}>`,
-        to : req.body.to,
-        subject : req.body.subject,
-        text: req.body.text,
+        from: `Siddhant <${fromAddress}>`,
+        to : toAddress,
+        subject : subjectAddress,
+        text: textAddress,
       };
+      console.log("mailOptions : ", mailOptions)
+
       const result = await transport.sendMail(mailOptions);
       res.send(result);
       next;
@@ -109,7 +108,7 @@ export async function readMail(req, res) {
         //  for get messageId in Gmail website:
         //      open a message on chrome => F12 => Console => type:
         //          document.querySelector('[data-legacy-thread-id]').getAttribute('data-legacy-thread-id')     
-      const url = `https://gmail.googleapis.com/gmail/v1/users/${process.env.GMAIL_ADDRESS}/messages/${req.params.messageId}`;
+      const url = `https://gmail.googleapis.com/gmail/v1/users/${process.env.SECOND_GMAIL_ADDRESS}/messages/${req.params.messageId}`;
       const config = generateConfig(url, token);
       const response = await axios(config);
   
@@ -137,7 +136,7 @@ export async function readMail(req, res) {
 for(const id of msgIds){
       const newReq = req;
       newReq.params.messageId= id ;
-      let fullUrl = `https://gmail.googleapis.com/gmail/v1/users/${process.env.GMAIL_ADDRESS}/messages/${req.params.messageId}`;
+      let fullUrl = `https://gmail.googleapis.com/gmail/v1/users/${process.env.SECOND_GMAIL_ADDRESS}/messages/${req.params.messageId}`;
       if(format) fullUrl = fullUrl + `?format=${format}`
       const fullConfig = generateConfig(fullUrl, token);
       const data = await axios(fullConfig);

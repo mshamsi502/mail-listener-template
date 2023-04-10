@@ -29,27 +29,8 @@ export default class ImapConnection {
     const simpleImap = new SimpleImapAsync(options);
 
     simpleImap.start(); // start listening
+ 
 
-
-    // simpleImap.on("server:connected", () => {
-    //   console.log("imapConnected");
-    // });
-    
-    // simpleImap.on("server:disconnected", () => {
-    //   console.log("imapDisconnected");
-    // });
-    
-    // simpleImap.on("error", err => {
-    //   console.log("err : " , err);
-    // });
-    
-    // simpleImap.on("message", message => {
-    //   console.log("message : ", message);
-    // });
-    
-    
-    // stop listening
-    // simpleImap.stop();
     }
   }
   

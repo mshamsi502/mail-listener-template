@@ -12,7 +12,7 @@ const oAuth2Client = new google.auth.OAuth2(
 
 oAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
 
-export const gmailAuth = {
+export const firstGmailAuth = {
   type: "OAuth2",
   user: process.env.FIRST_GMAIL_ADDRESS,
   clientId: process.env.FIRST_CLIENT_ID,
