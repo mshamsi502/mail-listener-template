@@ -1,31 +1,21 @@
 import axios from "axios";
-import { google } from "googleapis";
 import open from "open";
 import EmailNotifierConnection from "../../common/utils/mail-notifier-connection.util.js"
 
-export const oAuth2Client = new google.auth.OAuth2(
-  process.env.SECOND_CLIENT_ID,
-  process.env.SECOND_CLIENT_SECRET,
-  process.env.SECOND_REDIRECT_URI
-);
-
-oAuth2Client.setCredentials({ refresh_token: process.env.SECOND_REFRESH_TOKEN });
-
-const { token } = await oAuth2Client.getAccessToken();
 
 export async function loginGmail(req, res, next) {
   console.log("aaa");
   try {
     const body = {
-      scope: ["https://mail.google.com"],
+      scope: [process.env.GMAIL_SCOPE],
       response_type: "code",
-      auth_uri: "https://accounts.google.com/o/oauth2/v2/auth",
-      client_id: process.env.SECOND_CLIENT_ID,
+      auth_uri: process.env.GMAIL_AUTH_HOST_URI,
+      client_id: process.env.GMAIL_CLIENT_ID,
       prompt: "consent",
       access_type: "offline",
     };
     const response = await axios.post(
-      `https://developers.google.com/oauthplayground/buildAuthorizeUri`,
+      process.env.GMAIL_AUTHORITY_HOST_URL,
       body
     );
     console.log(response.data);
@@ -43,8 +33,8 @@ export async function redirectLinkGoogleApp(req, res, next) {
     const response = await axios.post(
       "https://developers.google.com/oauthplayground/exchangeAuthCode",
       {
-        client_id: process.env.SECOND_CLIENT_ID,
-        client_secret: process.env.SECOND_CLIENT_SECRET,
+        client_id: process.env.GMAIL_CLIENT_ID,
+        client_secret: process.env.GMAIL_CLIENT_SECRET,
         token_uri: "https://oauth2.googleapis.com/token",
         code: req.body.code,
       }

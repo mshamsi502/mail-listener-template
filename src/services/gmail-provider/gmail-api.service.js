@@ -1,16 +1,16 @@
 import axios from "axios"
 import nodemailer from "nodemailer"
 import { google } from "googleapis"
-import { generateConfig } from "../common/utils/generate-config.util.js"
+import { generateConfig } from "../../common/utils/generate-config.util.js"
 
 // 
-export const oAuth2Client = new google.auth.OAuth2(
-  process.env.SECOND_CLIENT_ID,
-  process.env.SECOND_CLIENT_SECRET,
-  process.env.SECOND_REDIRECT_URI
-);
-oAuth2Client.setCredentials({ refresh_token: process.env.SECOND_REFRESH_TOKEN });
-const { token } = await oAuth2Client.getAccessToken();
+// export const oAuth2Client = new google.auth.OAuth2(
+//   process.env.GMAIL_CLIENT_ID,
+//   process.env.GMAIL_CLIENT_SECRET,
+//   process.env.GMAIL_REDIRECT_URI
+// );
+// oAuth2Client.setCredentials({ refresh_token: process.env.GMAIL_REFRESH_TOKEN });
+// const { token } = await oAuth2Client.getAccessToken();
 // 
 
 export async function sendMail(req, res, next) {
@@ -48,7 +48,7 @@ export async function sendMail(req, res, next) {
 export async function getUser(req, res) {
     try {
       const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/profile`;
-      const config = generateConfig(url, token);
+      const config = generateConfig(url, req.body.accessToken);
       const response = await axios(config);
       res.json(response.data);
     } catch (error) {
@@ -60,7 +60,7 @@ export async function getUser(req, res) {
 export async function getDrafts(req, res) {
     try {
       const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/drafts`;
-      const config = generateConfig(url, token);
+      const config = generateConfig(url, req.body.accessToken);
       const response = await axios(config);
       res.json(response.data);
     } catch (error) {
@@ -77,7 +77,7 @@ export async function getDrafts(req, res) {
      console.log("req.body.labelIds : ", req.body.labelIds)
       if(req.body.labelIds) 
         req.body.labelIds.map(_label=> url = url + `&labelIds=${_label}`)
-      const config = generateConfig(url, token);
+      const config = generateConfig(url, req.body.accessToken);
       const codeResponse = await axios(config);
       const msgIds = [];
        codeResponse.data.messages.map(mess => msgIds.push(mess.id))
@@ -108,8 +108,8 @@ export async function readMail(req, res) {
         //  for get messageId in Gmail website:
         //      open a message on chrome => F12 => Console => type:
         //          document.querySelector('[data-legacy-thread-id]').getAttribute('data-legacy-thread-id')     
-      const url = `https://gmail.googleapis.com/gmail/v1/users/${process.env.SECOND_GMAIL_ADDRESS}/messages/${req.params.messageId}`;
-      const config = generateConfig(url, token);
+      const url = `https://gmail.googleapis.com/gmail/v1/users/${process.env.GMAIL_ADDRESS}/messages/${req.params.messageId}`;
+      const config = generateConfig(url, req.body.accessToken);
       const response = await axios(config);
   
       let data = await response.data;
@@ -136,9 +136,9 @@ export async function readMail(req, res) {
 for(const id of msgIds){
       const newReq = req;
       newReq.params.messageId= id ;
-      let fullUrl = `https://gmail.googleapis.com/gmail/v1/users/${process.env.SECOND_GMAIL_ADDRESS}/messages/${req.params.messageId}`;
+      let fullUrl = `https://gmail.googleapis.com/gmail/v1/users/${process.env.GMAIL_ADDRESS}/messages/${req.params.messageId}`;
       if(format) fullUrl = fullUrl + `?format=${format}`
-      const fullConfig = generateConfig(fullUrl, token);
+      const fullConfig = generateConfig(fullUrl, req.body.accessToken);
       const data = await axios(fullConfig);
        fullResponse.messages.push(data.data);
     }
