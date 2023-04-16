@@ -1,4 +1,4 @@
-import axios from "axios";
+// import axios from "axios";
 // import xoauth2 from "xoauth2";
 import open from "open";
 import EmailNotifierConnection from "../../common/utils/mail-notifier-connection.util.js";
@@ -9,7 +9,8 @@ export async function loginHotmail(req, res, next) {
   try {
     const cca = await new msal.ConfidentialClientApplication({
       auth: {
-        authority: process.env.HOTMAIL_AUTHORITY,
+        authority: process.env.HOTMAIL_AUTHORITY + 'consumers/', // personal account
+        // authority: process.env.HOTMAIL_AUTHORITY + process.env.HOTMAIL_TENANT_ID + '/', // organizational account
         clientId: process.env.HOTMAIL_CLIENT_ID,
         clientSecret: process.env.HOTMAIL_CLIENT_SECRET,
       },
@@ -29,13 +30,12 @@ export async function loginHotmail(req, res, next) {
       
     );
     // 
-    const authCodeRequest = {
-      redirectUri: cca.auth.redirectUri,
-  };
+  //   const authCodeRequest = {
+  //     redirectUri: cca.auth.redirectUri,
+  // };
     // 
     new EmailNotifierConnection({
       host: process.env.HOTMAIL_HOST_SERVICE,
-      // username: process.env.HOTMAIL_ADDRESS,
       username: req.body.username,
       access_token: response.accessToken,
     });

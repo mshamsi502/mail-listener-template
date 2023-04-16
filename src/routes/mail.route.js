@@ -1,23 +1,25 @@
 import { Router } from "express"
 import {
     getUser,
-    sendMail,
     getDrafts,
     readMail,
     getMessages,
 } from "../services/gmail-provider/gmail-api.service.js"
-import { loginEmail } from "../controllers/mail-api.controller.js"
+import { loginEmail, sendMail } from "../controllers/mail-api.controller.js"
 import { redirectLinkGoogleApp } from "../services/gmail-provider/gmail-auth.service.js"
+import { redirectLinkHotmailApp } from "../services/hotmail-provider/hotmail-auth.service.js"
+import { redirectLinkYahooApp } from "../services/yahoo-provider/yahoo-auth.service.js"
 
 export const route = Router()
 
-route.post( "/", async (req, res, next) => {
-    console.log("body : ", req)
+route.get( "/", async (req, res, next) => {
     res.send("Welcome to Gmail API with NodeJS");
     next;
   })
-route.get('/mail/login/:provider', loginEmail)
+route.post('/mail/login', loginEmail)
 route.post('/mail/google/redirectLink', redirectLinkGoogleApp)
+route.post('/mail/hotmail/redirectLink', redirectLinkHotmailApp)
+route.get('/mail/yahoo/redirectLink', redirectLinkYahooApp)
 // route.get('/mail/login', loginEmail)
 // route.post('/mail/google/redirectLink', redirectLinkGoogleApp)
 route.get('/mail/user/:email', getUser)

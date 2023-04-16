@@ -1,49 +1,6 @@
 import axios from "axios"
-import nodemailer from "nodemailer"
-import { google } from "googleapis"
 import { generateConfig } from "../../common/utils/generate-config.util.js"
 
-// 
-// export const oAuth2Client = new google.auth.OAuth2(
-//   process.env.GMAIL_CLIENT_ID,
-//   process.env.GMAIL_CLIENT_SECRET,
-//   process.env.GMAIL_REDIRECT_URI
-// );
-// oAuth2Client.setCredentials({ refresh_token: process.env.GMAIL_REFRESH_TOKEN });
-// const { token } = await oAuth2Client.getAccessToken();
-// 
-
-export async function sendMail(req, res, next) {
-  const accessToken = req.body.accessToken;
-  const fromAddress = req.body.from;
-  const toAddress = req.body.to;
-  const subjectAddress = req.body.subject;
-  const textAddress = req.body.text;
-    try {
-      const transport = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          type: "OAuth2",
-          user: fromAddress,
-          accessToken: accessToken,
-        },
-      });
-      const mailOptions = {
-        from: `Siddhant <${fromAddress}>`,
-        to : toAddress,
-        subject : subjectAddress,
-        text: textAddress,
-      };
-      console.log("mailOptions : ", mailOptions)
-
-      const result = await transport.sendMail(mailOptions);
-      res.send(result);
-      next;
-    } catch (error) {
-      console.log(error);
-      res.send(error);
-    }
-  }
 
 export async function getUser(req, res) {
     try {
@@ -82,7 +39,7 @@ export async function getDrafts(req, res) {
       const msgIds = [];
        codeResponse.data.messages.map(mess => msgIds.push(mess.id))
 
-      const fullResponse = await getFromGoogleAPIMessage(
+      const fullResponse = await getSingleMessage(
         req,
         msgIds,
         codeResponse.data.nextPageToken,
@@ -120,7 +77,7 @@ export async function readMail(req, res) {
     }
   }
 
-  async function getFromGoogleAPIMessage(
+  async function getSingleMessage(
     req,
     msgIds,
     nextPageToken,
